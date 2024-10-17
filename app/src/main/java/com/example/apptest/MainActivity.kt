@@ -27,13 +27,20 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 class ProfilDestination
 
 @Serializable
-class FilmsDestination
+class MoviesDestination
+@Serializable
+class MovieDetailsDestination
 
 @Serializable
 class SeriesDestination
+@Serializable
+class SerieDetailsDestionation
 
 @Serializable
-class ActeursDestination
+class ActorsDestination
+@Serializable
+class ActorDetailsDestination
+
 
 
 class MainActivity : ComponentActivity() {
@@ -57,30 +64,38 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 icon = { Icon(painterResource(id = R.drawable.baseline_movie_24), contentDescription = null) },
                                 label = { Text("Films") },
-                                selected = currentDestination.route == ProfilDestination().toString(),
-                                onClick = { navController.navigate(FilmsDestination()) })
+                                selected = currentDestination.hasRoute<MoviesDestination>(),
+                                onClick = { navController.navigate(MoviesDestination()) })
                             NavigationBarItem(
                                 icon = { Icon(painterResource(id = R.drawable.baseline_tv_24), contentDescription = null)},
                                 label = { Text("Séries") },
-                                selected = currentDestination.route == FilmsDestination().toString(),
+                                selected = currentDestination.hasRoute<SeriesDestination>(),
                                 onClick = { navController.navigate(SeriesDestination()) })
                             NavigationBarItem(
                                 icon = {  Icon(painterResource(id = R.drawable.baseline_person_24), contentDescription = null) },
                                 label = { Text("Acteurs") },
-                                selected = currentDestination.route == FilmsDestination().toString(),
-                                onClick = { navController.navigate(ActeursDestination()) })
+                                selected = currentDestination.hasRoute<ActorsDestination>(),
+                                onClick = { navController.navigate(ActorsDestination()) })
                         }
                     }
                 }
             ) { innerPadding ->
                 NavHost(
-                    navController = navController, startDestination = ProfilDestination(),
+                    //navController = navController, startDestination = ProfilDestination(),
+                    navController = navController, startDestination = SerieDetailsDestionation(),
+
                     Modifier.padding(innerPadding),
                 ) {
                     composable<ProfilDestination> { ProfilScreen(windowSizeClass, navController) }
-                    composable<FilmsDestination> { MoviesScreen(windowSizeClass, mainViewModel) }
-                    composable<SeriesDestination> { SeriesScreen(windowSizeClass, mainViewModel) }
-                    composable<ActeursDestination> { ActorsScreen(windowSizeClass, mainViewModel) }
+
+                    composable<MoviesDestination> { MoviesScreen(windowSizeClass, mainViewModel, navController) }
+                    composable<MovieDetailsDestination> {  }
+
+                    composable<SeriesDestination> { SeriesScreen(windowSizeClass, mainViewModel, navController) }
+                    composable<SerieDetailsDestionation> { SeriesDetailsScreen(windowSizeClass, mainViewModel, navController) }
+
+                    composable<ActorsDestination> { ActorsScreen(windowSizeClass, mainViewModel, navController) }
+                    composable<ActorDetailsDestination> {  }
                 }
             }
         }

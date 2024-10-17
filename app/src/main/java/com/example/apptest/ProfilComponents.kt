@@ -92,7 +92,7 @@ fun DemarrerButton(navController: NavController) {
     val mainViewModel : MainViewModel = viewModel()
 
     Button(
-        onClick = { navController.navigate(FilmsDestination())
+        onClick = { navController.navigate(MoviesDestination())
                   mainViewModel.getMovies()
         },
         modifier = Modifier.padding(top = 8.dp)

@@ -1,29 +1,51 @@
 package com.example.apptest
 
+import android.graphics.drawable.shapes.Shape
+import android.util.LayoutDirection
 import android.util.Log
+import android.util.Size
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.zIndex
+import kotlin.io.path.Path
+
 
 @Composable
 fun CardComponent(
@@ -33,9 +55,9 @@ fun CardComponent(
     onClick: () -> Unit,
 
     ) {
-
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
+
     val padding = screenWidth / 50
 
 
@@ -117,4 +139,123 @@ fun GridComponent(canBeCardedList: List<CanBeCarded>) {
             )
         }
     }
+}
+
+
+@Composable
+fun DetailsComponent(
+    backdropPath: String,
+    posterPath: String,
+    title: String,
+    subTitle: String,
+    genres: List<String>,
+    synopsis: String,
+    //castList: List<CanBeCarded>
+) {
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
+
+    val backdropPainter =
+        rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$backdropPath.jpg")
+    val posterPainter =
+        rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$posterPath.jpg")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        ) {
+            Image(
+                painter = backdropPainter,
+                contentDescription = "Backdrop",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { alpha = 0.99f }
+                    .drawWithContent {
+                        val colors = listOf(
+                            Color.Black,
+                            Color.Transparent
+                        )
+                        drawContent()
+                        drawRect(
+                            brush = Brush.verticalGradient(colors),
+                            blendMode = BlendMode.DstIn
+                        )
+                    },
+                contentScale = ContentScale.Crop
+            )
+            // Poster image
+            Image(
+                painter = posterPainter,
+                contentDescription = "Poster",
+                modifier = Modifier
+                    .width(screenWidth / 3)
+                    .aspectRatio(1 / 1.66f)
+                    .border(2.dp, Color.White)
+                    .align(Alignment.BottomCenter),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Title
+        Text(
+            text = title,
+            fontSize = 30.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+
+        Text(
+            text = subTitle,
+            fontSize = 15.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = customTextBuilder("Genres: ", genres.joinToString(", ")),
+            fontSize = 18.sp,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = customTextBuilder("Synopsis: ", synopsis),
+            fontSize = 19.sp,
+            textAlign = TextAlign.Justify
+
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        Text(
+            text = "Acteurs",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+        //GridComponent(canBeCardedList = castList)
+    }
+}
+
+
+fun customTextBuilder(firstText: String, secondText: String): AnnotatedString = buildAnnotatedString {
+    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append(firstText)
+    }
+    append(secondText)
 }
