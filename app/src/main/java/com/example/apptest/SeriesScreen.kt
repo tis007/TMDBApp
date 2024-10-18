@@ -36,7 +36,7 @@ val synopsis = "Divers personnages, connus et inconnus, doivent faire face à la
 val castList = listOf(null)
 
 @Composable
-fun SeriesDetailsScreen(
+fun SerieDetailsScreen(
     windowClass: WindowSizeClass,
     mainViewModel: MainViewModel,
     navController: NavHostController

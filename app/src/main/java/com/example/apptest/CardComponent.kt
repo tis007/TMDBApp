@@ -1,11 +1,7 @@
 package com.example.apptest
 
-import android.graphics.drawable.shapes.Shape
-import android.util.LayoutDirection
 import android.util.Log
-import android.util.Size
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,21 +26,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.zIndex
-import kotlin.io.path.Path
+import androidx.navigation.NavHostController
 
 
 @Composable
@@ -129,9 +120,9 @@ fun GridComponent(canBeCardedList: List<CanBeCarded>) {
     ) {
         items(canBeCardedList) { canBeCarded ->
             CardComponent(
-                posterPath = canBeCarded.getPosterPathForCard(),
-                title = canBeCarded.getTitleForCard(),
-                subTitle = canBeCarded.getSubTitleForCard(),
+                posterPath = canBeCarded.getPosterPath(),
+                title = canBeCarded.getTitleName(),
+                subTitle = canBeCarded.getDate(),
                 onClick = {
                     // Your onClick action here
                     println("Card clicked!")
@@ -253,9 +244,11 @@ fun DetailsComponent(
 }
 
 
-fun customTextBuilder(firstText: String, secondText: String): AnnotatedString = buildAnnotatedString {
-    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-        append(firstText)
+fun customTextBuilder(firstText: String, secondText: String): AnnotatedString =
+    buildAnnotatedString {
+        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+            append(firstText)
+        }
+        append(secondText)
     }
-    append(secondText)
-}
+

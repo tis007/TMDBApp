@@ -11,10 +11,18 @@ data class MovieList(
 )
 
 interface CanBeCarded {
-    fun getTitleForCard() : String;
-    fun getPosterPathForCard() : String;
-    fun getSubTitleForCard() : String;
-    fun getLinkToToDetailsForCard() : String = ""
+    fun getLinkToToDetails() : String = ""
+    fun getTitleName() : String;
+    fun getPosterPath() : String;
+    fun getDate() : String;
+
+}
+
+interface CanBeDetailed : CanBeCarded {
+    fun getGenresNames() : List<String> = listOf()
+    fun getSynopsis() : String = ""
+    fun getCastProfilPath() : List<String> = listOf()
+    fun getBackdropPath() : String = ""
 }
 
 val baseUrl = "https://api.themoviedb.org/3/"
@@ -48,11 +56,15 @@ data class Movie(
     val vote_average: Double = 0.0,
     val vote_count: Int = 0,
     val credits: Credits = Credits()
-) : CanBeCarded{
-    override fun getTitleForCard() = title
-    override fun getPosterPathForCard() = poster_path
-    override fun getSubTitleForCard() = formatDate(release_date)
-    override fun getLinkToToDetailsForCard() = baseUrl + "movie/" + id + apiKey
+) : CanBeCarded, CanBeDetailed {
+    override fun getTitleName() = title
+    override fun getPosterPath() = poster_path
+    override fun getDate() = formatDate(release_date)
+    override fun getLinkToToDetails() = baseUrl + "movie/" + id + apiKey
+    override fun getGenresNames(): List<String> = genres.map { it.name }
+    override fun getSynopsis() = overview
+    override fun getCastProfilPath() = credits.cast.map { it.profile_path }
+    override fun getBackdropPath() = backdrop_path
 }
 
 
@@ -156,11 +168,16 @@ data class Serie(
     val vote_average: Double = 0.0,
     val vote_count: Int = 0,
     val credits: Credits = Credits()
-) : CanBeCarded {
-    override fun getTitleForCard() = name
-    override fun getPosterPathForCard() = poster_path
-    override fun getSubTitleForCard() = formatDate(first_air_date)
-    override fun getLinkToToDetailsForCard() = baseUrl + "serie/" + id + apiKey
+) : CanBeCarded, CanBeDetailed {
+    override fun getTitleName() = title
+    override fun getPosterPath() = poster_path
+    override fun getDate() = formatDate(first_air_date)
+
+    override fun getLinkToToDetails() = baseUrl + "serie/" + id + apiKey
+    override fun getGenresNames(): List<String> = genres.map { it.name }
+    override fun getSynopsis() = overview
+    override fun getCastProfilPath() = credits.cast.map { it.profile_path }
+    override fun getBackdropPath() = backdrop_path
 
 }
 
@@ -194,10 +211,10 @@ data class Actor(
     val biography: String = "",
     val birthday: String = ""
 ) : CanBeCarded {
-    override fun getTitleForCard() = name
-    override fun getPosterPathForCard() = profile_path
-    override fun getSubTitleForCard() = ""
-    override fun getLinkToToDetailsForCard() = baseUrl + "actor/" + id + apiKey
+    override fun getTitleName() = name
+    override fun getPosterPath() = profile_path
+    override fun getDate() = ""
+    override fun getLinkToToDetails() = baseUrl + "actor/" + id + apiKey
 
 }
 

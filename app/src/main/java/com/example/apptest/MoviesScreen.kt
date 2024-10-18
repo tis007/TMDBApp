@@ -22,16 +22,23 @@ fun MoviesScreen(
     }
 
     val movies by mainViewModel.movies.collectAsStateWithLifecycle()
-    Log.v("Movies", movies.toString())
+    //Log.v("Movies", movies.joinToString { it.credits.cast.toString() })
 
     GridComponent(canBeCardedList = movies)
 
 }
 
-fun MoviesDetailsScreen(
+@Composable
+fun MovieDetailsScreen(
     windowClass: WindowSizeClass,
     mainViewModel: MainViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+
 ) {
+
+}
+
+fun cardClickAction(navController: NavHostController) {
+    navController.navigate("movieDetails")
 
 }
