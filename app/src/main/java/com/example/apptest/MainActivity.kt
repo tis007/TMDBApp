@@ -23,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.toRoute
 
 
 @Serializable
@@ -32,13 +33,14 @@ class ProfilDestination
 class MoviesDestination
 
 @Serializable
-class MovieDetailsDestination
+data class MovieDetailsDestination(val detailsId: String)
+
 
 @Serializable
 class SeriesDestination
 
 @Serializable
-class SerieDetailsDestionation
+data class SerieDetailsDestionation(val detailsId: String)
 
 @Serializable
 class ActorsDestination
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity() {
                 }) { innerPadding ->
                 NavHost(
                     //navController = navController, startDestination = ProfilDestination(),
-                    navController = navController, startDestination = SerieDetailsDestionation(),
+                    navController = navController, startDestination = ProfilDestination(),
 
                     Modifier.padding(innerPadding),
                 ) {
@@ -116,9 +118,14 @@ class MainActivity : ComponentActivity() {
                             windowSizeClass, mainViewModel, navController
                         )
                     }
-                    composable<MovieDetailsDestination> { MovieDetailsScreen(
-                        windowSizeClass, mainViewModel, navController
-                    )  }
+                    composable<MovieDetailsDestination> {
+                            backStackEntry ->
+                        val filmDetail: MovieDetailsDestination = backStackEntry.toRoute()
+                        MovieDetailsScreen(
+                                windowSizeClass, mainViewModel, navController, filmDetail.detailsId
+                            )
+
+                    }
 
                     composable<SeriesDestination> {
                         SeriesScreen(
@@ -126,8 +133,10 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<SerieDetailsDestionation> {
+                            backStackEntry ->
+                        val SerieDetail: MovieDetailsDestination = backStackEntry.toRoute()
                         SerieDetailsScreen(
-                            windowSizeClass, mainViewModel, navController
+                            windowSizeClass, mainViewModel, navController, SerieDetail.detailsId
                         )
                     }
 

@@ -35,7 +35,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import kotlin.math.log
 
 
 @Composable
@@ -43,7 +45,7 @@ fun CardComponent(
     posterPath: String?,
     title: String,
     subTitle: String,
-    onClick: () -> Unit,
+    cardClickAction: () -> Unit,
 
     ) {
     val configuration = LocalConfiguration.current
@@ -58,7 +60,7 @@ fun CardComponent(
             .padding(padding)
             .fillMaxWidth()
             .fillMaxHeight()
-            .clickable { onClick() },
+            .clickable { cardClickAction() },
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(
@@ -109,10 +111,15 @@ fun CardComponent(
 }
 
 @Composable
-fun GridComponent(canBeCardedList: List<CanBeCarded>) {
+fun GridComponent(
+    canBeCardedList: List<CanBeCarded>,
+    cardClickAction: (NavHostController, String) -> Unit,
+    navController: NavHostController
+
+) {
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.screenWidthDp < configuration.screenHeightDp
-    val columns = if (isPortrait) 2 else 3
+    val columns = if (isPortrait) 2 else 4
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
@@ -123,9 +130,8 @@ fun GridComponent(canBeCardedList: List<CanBeCarded>) {
                 posterPath = canBeCarded.getPosterPath(),
                 title = canBeCarded.getTitleName(),
                 subTitle = canBeCarded.getDate(),
-                onClick = {
-                    // Your onClick action here
-                    println("Card clicked!")
+                cardClickAction = {
+                    cardClickAction(navController, canBeCarded.getLinkToToDetails())
                 }
             )
         }
@@ -135,19 +141,25 @@ fun GridComponent(canBeCardedList: List<CanBeCarded>) {
 
 @Composable
 fun DetailsComponent(
-    backdropPath: String,
-    posterPath: String,
-    title: String,
-    subTitle: String,
-    genres: List<String>,
-    synopsis: String,
+    navController: NavController,
+    canBeDetailed: CanBeDetailed
     //castList: List<CanBeCarded>
 ) {
+
+    Log.i("DetailsComponent", canBeDetailed.toString())
+
+
+
+    val backdropPath: String = canBeDetailed.getBackdropPath()
+    val posterPath: String = canBeDetailed.getPosterPath()
+    val title: String = canBeDetailed.getTitleName()
+    val subTitle: String = canBeDetailed.getDate()
+    val genres: List<String> = canBeDetailed.getGenresNames()
+    val synopsis: String = canBeDetailed.getSynopsis()
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
-
     val backdropPainter =
         rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$backdropPath.jpg")
     val posterPainter =
@@ -241,6 +253,10 @@ fun DetailsComponent(
         )
         //GridComponent(canBeCardedList = castList)
     }
+
+
+
+
 }
 
 

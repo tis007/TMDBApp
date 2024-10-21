@@ -56,11 +56,11 @@ data class Movie(
     val vote_average: Double = 0.0,
     val vote_count: Int = 0,
     val credits: Credits = Credits()
-) : CanBeCarded, CanBeDetailed {
+) : CanBeDetailed {
     override fun getTitleName() = title
     override fun getPosterPath() = poster_path
     override fun getDate() = formatDate(release_date)
-    override fun getLinkToToDetails() = baseUrl + "movie/" + id + apiKey
+    override fun getLinkToToDetails() = id.toString()
     override fun getGenresNames(): List<String> = genres.map { it.name }
     override fun getSynopsis() = overview
     override fun getCastProfilPath() = credits.cast.map { it.profile_path }
@@ -173,7 +173,9 @@ data class Serie(
     override fun getPosterPath() = poster_path
     override fun getDate() = formatDate(first_air_date)
 
-    override fun getLinkToToDetails() = baseUrl + "serie/" + id + apiKey
+    //override fun getLinkToToDetails() = baseUrl + "serie/" + id + apiKey
+    override fun getLinkToToDetails() = id.toString()
+
     override fun getGenresNames(): List<String> = genres.map { it.name }
     override fun getSynopsis() = overview
     override fun getCastProfilPath() = credits.cast.map { it.profile_path }
