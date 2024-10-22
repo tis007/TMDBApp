@@ -174,7 +174,7 @@ data class Serie(
     val vote_count: Int = 0,
     val credits: Credits = Credits()
 ) : CanBeCarded, CanBeDetailed {
-    override fun getTitleName() = title
+    override fun getTitleName() = original_name
     override fun getPosterPath() = poster_path
     override fun getDate() = formatDate(first_air_date)
 

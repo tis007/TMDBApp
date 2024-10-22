@@ -5,16 +5,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.compose.NavHost
@@ -24,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
+import androidx.window.core.layout.WindowWidthSizeClass
 
 
 @Serializable
@@ -62,10 +68,18 @@ class MainActivity : ComponentActivity() {
 
 
 
+
             Scaffold(
 
+                floatingActionButton = {
+                    if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT && currentDestination?.hasRoute<ProfilDestination>() == false) {
+
+                        FloatingSearchButton(searchQuery)
+                    }
+                },
+
                 topBar = {
-                    if (currentDestination?.hasRoute<ProfilDestination>() == false && !currentDestination.hasRoute<MovieDetailsDestination>() && !currentDestination.hasRoute<SerieDetailsDestionation>() && !currentDestination.hasRoute<ActorDetailsDestination>()) {
+                    if (currentDestination?.hasRoute<ProfilDestination>() == false && !currentDestination.hasRoute<MovieDetailsDestination>() && !currentDestination.hasRoute<SerieDetailsDestionation>() && !currentDestination.hasRoute<ActorDetailsDestination>() && windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
 
                         TopBarWithSearch(searchQuery)
                     }
@@ -73,7 +87,7 @@ class MainActivity : ComponentActivity() {
 
                 bottomBar = {
 
-                    if (currentDestination?.hasRoute<ProfilDestination>() == false) {
+                    if (currentDestination?.hasRoute<ProfilDestination>() == false && windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
                         NavigationBar {
                             NavigationBarItem(icon = {
                                 Icon(
@@ -104,48 +118,62 @@ class MainActivity : ComponentActivity() {
                                 onClick = { navController.navigate(ActorsDestination()) })
                         }
                     }
-                }) { innerPadding ->
-                NavHost(
-                    //navController = navController, startDestination = ProfilDestination(),
-                    navController = navController, startDestination = ProfilDestination(),
+                }
 
-                    Modifier.padding(innerPadding),
-                ) {
-                    composable<ProfilDestination> { ProfilScreen(windowSizeClass, navController) }
-
-                    composable<MoviesDestination> {
-                        MoviesScreen(
-                            windowSizeClass, mainViewModel, navController
-                        )
+            ) { innerPadding ->
+                Row {
+                    when (windowSizeClass.windowWidthSizeClass) {
+                        WindowWidthSizeClass.COMPACT -> {}
+                        else -> {
+                            LeftNavigationRail(navController, currentDestination)
+                        }
                     }
-                    composable<MovieDetailsDestination> {
-                            backStackEntry ->
-                        val filmDetail: MovieDetailsDestination = backStackEntry.toRoute()
-                        MovieDetailsScreen(
+
+                    NavHost(
+                        //navController = navController, startDestination = ProfilDestination(),
+                        navController = navController, startDestination = ProfilDestination(),
+
+                        Modifier.padding(innerPadding),
+                    ) {
+                        composable<ProfilDestination> {
+                            ProfilScreen(
+                                windowSizeClass,
+                                navController
+                            )
+                        }
+
+                        composable<MoviesDestination> {
+                            MoviesScreen(
+                                windowSizeClass, mainViewModel, navController
+                            )
+                        }
+                        composable<MovieDetailsDestination> { backStackEntry ->
+                            val filmDetail: MovieDetailsDestination = backStackEntry.toRoute()
+                            MovieDetailsScreen(
                                 windowSizeClass, mainViewModel, navController, filmDetail.detailsId
                             )
 
-                    }
+                        }
 
-                    composable<SeriesDestination> {
-                        SeriesScreen(
-                            windowSizeClass, mainViewModel, navController
-                        )
-                    }
-                    composable<SerieDetailsDestionation> {
-                            backStackEntry ->
-                        val SerieDetail: MovieDetailsDestination = backStackEntry.toRoute()
-                        SerieDetailsScreen(
-                            windowSizeClass, mainViewModel, navController, SerieDetail.detailsId
-                        )
-                    }
+                        composable<SeriesDestination> {
+                            SeriesScreen(
+                                windowSizeClass, mainViewModel, navController
+                            )
+                        }
+                        composable<SerieDetailsDestionation> { backStackEntry ->
+                            val SerieDetail: MovieDetailsDestination = backStackEntry.toRoute()
+                            SerieDetailsScreen(
+                                windowSizeClass, mainViewModel, navController, SerieDetail.detailsId
+                            )
+                        }
 
-                    composable<ActorsDestination> {
-                        ActorsScreen(
-                            windowSizeClass, mainViewModel, navController
-                        )
+                        composable<ActorsDestination> {
+                            ActorsScreen(
+                                windowSizeClass, mainViewModel, navController
+                            )
+                        }
+                        composable<ActorDetailsDestination> { }
                     }
-                    composable<ActorDetailsDestination> { }
                 }
             }
         }
