@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
@@ -141,13 +142,11 @@ fun GridComponent(
 
 @Composable
 fun DetailsComponent(
-    navController: NavController,
+    navController: NavHostController,
     canBeDetailed: CanBeDetailed
-    //castList: List<CanBeCarded>
 ) {
 
     Log.i("DetailsComponent", canBeDetailed.toString())
-
 
 
     val backdropPath: String = canBeDetailed.getBackdropPath()
@@ -156,6 +155,7 @@ fun DetailsComponent(
     val subTitle: String = canBeDetailed.getDate()
     val genres: List<String> = canBeDetailed.getGenresNames()
     val synopsis: String = canBeDetailed.getSynopsis()
+    val castList: List<Cast> = canBeDetailed.getCastProfilPath()
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -165,93 +165,114 @@ fun DetailsComponent(
     val posterPainter =
         rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$posterPath.jpg")
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+    val isPortrait = configuration.screenWidthDp < configuration.screenHeightDp
+    val columns = if (isPortrait) 2 else 4
+
+
+
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = Modifier.padding(16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-        ) {
-            Image(
-                painter = backdropPainter,
-                contentDescription = "Backdrop",
-                modifier = Modifier
+
+
+        item (span = { GridItemSpan(columns) }){
+            Box (modifier = Modifier
                     .fillMaxWidth()
-                    .graphicsLayer { alpha = 0.99f }
-                    .drawWithContent {
-                        val colors = listOf(
-                            Color.Black,
-                            Color.Transparent
-                        )
-                        drawContent()
-                        drawRect(
-                            brush = Brush.verticalGradient(colors),
-                            blendMode = BlendMode.DstIn
-                        )
-                    },
-                contentScale = ContentScale.Crop
-            )
-            // Poster image
-            Image(
-                painter = posterPainter,
-                contentDescription = "Poster",
-                modifier = Modifier
-                    .width(screenWidth / 3)
-                    .aspectRatio(1 / 1.66f)
-                    .border(2.dp, Color.White)
-                    .align(Alignment.BottomCenter),
-                contentScale = ContentScale.Crop
-            )
+                .height(300.dp)) {
+                Image(
+                    painter = backdropPainter,
+                    contentDescription = "Backdrop",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer { alpha = 0.99f }
+                        .drawWithContent {
+                            val colors = listOf(
+                                Color.Black, Color.Transparent
+                            )
+                            drawContent()
+                            drawRect(
+                                brush = Brush.verticalGradient(colors), blendMode = BlendMode.DstIn
+                            )
+                        },
+                    contentScale = ContentScale.Crop
+                )
+                // Poster image
+                Image(
+                    painter = posterPainter,
+                    contentDescription = "Poster",
+                    modifier = Modifier
+                        .width(screenWidth / 3)
+                        .aspectRatio(1 / 1.66f)
+                        .border(2.dp, Color.White)
+                        .align(Alignment.BottomCenter),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item (span = { GridItemSpan(columns) }){
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
 
-        // Title
-        Text(
-            text = title,
-            fontSize = 30.sp,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center
-        )
+                // Title
+                Text(
+                    text = title,
+                    fontSize = 30.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    textAlign = TextAlign.Center
+                )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
 
-        Text(
-            text = subTitle,
-            fontSize = 15.sp,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center
-        )
+                Text(
+                    text = subTitle,
+                    fontSize = 15.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    textAlign = TextAlign.Center
+                )
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = customTextBuilder("Genres: ", genres.joinToString(", ")),
-            fontSize = 18.sp,
-        )
+                Text(
+                    text = customTextBuilder("Genres: ", genres.joinToString(", ")),
+                    fontSize = 18.sp,
+                )
 
-        Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-        Text(
-            text = customTextBuilder("Synopsis: ", synopsis),
-            fontSize = 19.sp,
-            textAlign = TextAlign.Justify
+                Text(
+                    text = customTextBuilder("Synopsis: ", synopsis),
+                    fontSize = 19.sp,
+                    textAlign = TextAlign.Justify
 
-        )
+                )
 
-        Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-        Text(
-            text = "Acteurs",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-        //GridComponent(canBeCardedList = castList)
+
+                Text(
+                    text = "Acteurs",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+
+        items(castList) { castList ->
+            CardComponent(
+                posterPath = castList.getPosterPath(),
+                title = castList.getTitleName(),
+                subTitle = castList.getDate(),
+                cardClickAction = {
+                    cardClickAction(navController, castList.getLinkToToDetails())
+                }
+            )
+
+        }
     }
 
 

@@ -21,7 +21,7 @@ interface CanBeCarded {
 interface CanBeDetailed : CanBeCarded {
     fun getGenresNames() : List<String> = listOf()
     fun getSynopsis() : String = ""
-    fun getCastProfilPath() : List<String> = listOf()
+    fun getCastProfilPath() : List<Cast> = listOf()
     fun getBackdropPath() : String = ""
 }
 
@@ -63,7 +63,7 @@ data class Movie(
     override fun getLinkToToDetails() = id.toString()
     override fun getGenresNames(): List<String> = genres.map { it.name }
     override fun getSynopsis() = overview
-    override fun getCastProfilPath() = credits.cast.map { it.profile_path }
+    override fun getCastProfilPath() = credits.cast
     override fun getBackdropPath() = backdrop_path
 }
 
@@ -109,7 +109,12 @@ data class Cast(
     val original_name: String,
     val popularity: Double,
     val profile_path: String
-)
+) : CanBeCarded {
+    override fun getTitleName() = character
+    override fun getPosterPath() = profile_path
+    override fun getDate() = name
+    override fun getLinkToToDetails() = id.toString()
+}
 
 data class Crew(
     val adult: Boolean,
@@ -178,7 +183,7 @@ data class Serie(
 
     override fun getGenresNames(): List<String> = genres.map { it.name }
     override fun getSynopsis() = overview
-    override fun getCastProfilPath() = credits.cast.map { it.profile_path }
+    override fun getCastProfilPath() = credits.cast
     override fun getBackdropPath() = backdrop_path
 
 }
