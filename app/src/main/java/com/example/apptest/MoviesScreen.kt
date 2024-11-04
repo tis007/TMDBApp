@@ -15,18 +15,29 @@ import androidx.window.core.layout.WindowSizeClass
 fun MoviesScreen(
     windowClass: WindowSizeClass,
     mainViewModel: MainViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    searchQuery: String,
 ) {
     LaunchedEffect(Unit) {
-        mainViewModel.getMovies()
-
+        if (searchQuery.isNotEmpty()) {
+            mainViewModel.searchMovie(searchQuery)
+        } else {
+            mainViewModel.getMovies()
+        }
     }
+
+
+
 
     val movies by mainViewModel.movies.collectAsStateWithLifecycle()
     //Log.v("Movies", movies.joinToString { it.credits.cast.toString() })
 
-    GridComponent(canBeCardedList = movies, ::cardClickAction, navController)
-
+    if (movies.isNotEmpty()) {
+        GridComponent(canBeCardedList = movies, ::cardClickAction, navController)
+    } else if (searchQuery.isNotEmpty() && movies.isEmpty()) {
+        // Affichez un indicateur de chargement ou un message d'erreur
+        Text("Aucun résultat trouvé")
+    }
 }
 
 @Composable

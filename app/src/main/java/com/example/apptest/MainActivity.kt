@@ -7,19 +7,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.compose.NavHost
@@ -64,7 +60,10 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val searchQuery = remember { mutableStateOf("") }
+            var searchQuery = remember { mutableStateOf("") }
+
+            var isSearchActive = remember { mutableStateOf(false) }
+
 
 
 
@@ -74,14 +73,14 @@ class MainActivity : ComponentActivity() {
                 floatingActionButton = {
                     if (windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT && currentDestination?.hasRoute<ProfilDestination>() == false) {
 
-                        FloatingSearchButton(searchQuery)
+                        FloatingSearchButton(searchQuery, isSearchActive)
                     }
                 },
 
                 topBar = {
-                    if (currentDestination?.hasRoute<ProfilDestination>() == false && !currentDestination.hasRoute<MovieDetailsDestination>() && !currentDestination.hasRoute<SerieDetailsDestionation>() && !currentDestination.hasRoute<ActorDetailsDestination>() && windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+                    if (currentDestination?.hasRoute<ProfilDestination>() == false && !currentDestination.hasRoute<MovieDetailsDestination>() && !currentDestination.hasRoute<SerieDetailsDestionation>() && !currentDestination.hasRoute<ActorDetailsDestination>() && windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT || isSearchActive.value) {
 
-                        TopBarWithSearch(searchQuery)
+                        TopBarWithSearch(searchQuery, isSearchActive, navController)
                     }
                 },
 
@@ -97,7 +96,10 @@ class MainActivity : ComponentActivity() {
                             },
                                 label = { Text("Films") },
                                 selected = currentDestination.hasRoute<MoviesDestination>(),
-                                onClick = { navController.navigate(MoviesDestination()) })
+                                onClick = {
+                                    navController.navigate(MoviesDestination())
+                                    searchQuery.value = ""
+                                })
                             NavigationBarItem(icon = {
                                 Icon(
                                     painterResource(id = R.drawable.baseline_tv_24),
@@ -106,7 +108,10 @@ class MainActivity : ComponentActivity() {
                             },
                                 label = { Text("Séries") },
                                 selected = currentDestination.hasRoute<SeriesDestination>(),
-                                onClick = { navController.navigate(SeriesDestination()) })
+                                onClick = {
+                                    navController.navigate(SeriesDestination())
+                                    searchQuery.value = ""
+                                })
                             NavigationBarItem(icon = {
                                 Icon(
                                     painterResource(id = R.drawable.baseline_person_24),
@@ -115,7 +120,10 @@ class MainActivity : ComponentActivity() {
                             },
                                 label = { Text("Acteurs") },
                                 selected = currentDestination.hasRoute<ActorsDestination>(),
-                                onClick = { navController.navigate(ActorsDestination()) })
+                                onClick = {
+                                    navController.navigate(ActorsDestination())
+                                    searchQuery.value = ""
+                                })
                         }
                     }
                 }
@@ -125,7 +133,9 @@ class MainActivity : ComponentActivity() {
                     when (windowSizeClass.windowWidthSizeClass) {
                         WindowWidthSizeClass.COMPACT -> {}
                         else -> {
-                            LeftNavigationRail(navController, currentDestination)
+                            if (currentDestination?.hasRoute<ProfilDestination>() == false) {
+                                LeftNavigationRail(navController, currentDestination)
+                            }
                         }
                     }
 
@@ -144,7 +154,7 @@ class MainActivity : ComponentActivity() {
 
                         composable<MoviesDestination> {
                             MoviesScreen(
-                                windowSizeClass, mainViewModel, navController
+                                windowSizeClass, mainViewModel, navController, searchQuery.value
                             )
                         }
                         composable<MovieDetailsDestination> { backStackEntry ->
@@ -157,7 +167,7 @@ class MainActivity : ComponentActivity() {
 
                         composable<SeriesDestination> {
                             SeriesScreen(
-                                windowSizeClass, mainViewModel, navController
+                                windowSizeClass, mainViewModel, navController, searchQuery.value
                             )
                         }
                         composable<SerieDetailsDestionation> { backStackEntry ->
@@ -169,7 +179,7 @@ class MainActivity : ComponentActivity() {
 
                         composable<ActorsDestination> {
                             ActorsScreen(
-                                windowSizeClass, mainViewModel, navController
+                                windowSizeClass, mainViewModel, navController, searchQuery.value
                             )
                         }
                         composable<ActorDetailsDestination> { }

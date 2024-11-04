@@ -13,16 +13,23 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarWithSearch(searchQuery: MutableState<String>) {
-    var isSearchActive by remember { mutableStateOf(false) }
+fun TopBarWithSearch(
+    searchQuery: MutableState<String>,
+    isSearchActive: MutableState<Boolean>,
+    navController: NavController
+) {
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
 
     TopAppBar(
         modifier = Modifier.padding(top = 8.dp),
         title = {
-            if (isSearchActive) {
+            if (isSearchActive.value) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -35,7 +42,15 @@ fun TopBarWithSearch(searchQuery: MutableState<String>) {
                         placeholder = { Text("Rechercher...") },
                         modifier = Modifier.weight(1f)
                     )
-                    IconButton(onClick = { isSearchActive = false }) {
+                    IconButton(onClick = {
+                        isSearchActive.value = false
+                        if (currentDestination?.hasRoute<MoviesDestination>() == true) {
+                            navController.navigate(MoviesDestination())
+                        } else if (currentDestination?.hasRoute<SeriesDestination>() == true) {
+                            navController.navigate(SeriesDestination())
+                        } else if (currentDestination?.hasRoute<ActorsDestination>() == true) {
+                            navController.navigate(ActorsDestination())
+                        }                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
                             contentDescription = "Search"
@@ -47,8 +62,8 @@ fun TopBarWithSearch(searchQuery: MutableState<String>) {
             }
         },
         actions = {
-            if (!isSearchActive) {
-                IconButton(onClick = { isSearchActive = true }) {
+            if (!isSearchActive.value) {
+                IconButton(onClick = { isSearchActive.value = true }) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_search_24),
                         contentDescription = "Search"
@@ -62,38 +77,38 @@ fun TopBarWithSearch(searchQuery: MutableState<String>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FloatingSearchButton(searchQuery: MutableState<String>) {
-    var isSearchActive by remember { mutableStateOf(false) }
+fun FloatingSearchButton(searchQuery: MutableState<String>, isSearchActive: MutableState<Boolean>) {
 
-    if (isSearchActive) {
+    if (isSearchActive.value) {
+        /*
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextField(
+                                value = searchQuery.value,
+                                onValueChange = { searchQuery.value = it },
+                                placeholder = { Text("Rechercher...") },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                                shape = MaterialTheme.shapes.small,
+                            )
+                            IconButton(onClick = { isSearchActive.value = false }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
+                                    contentDescription = "Search"
+                                )
+                            }
+                        }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                value = searchQuery.value,
-                onValueChange = { searchQuery.value = it },
-                placeholder = { Text("Rechercher...") },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-                singleLine = true,
-                shape = MaterialTheme.shapes.small,
 
-                )
-            IconButton(onClick = { isSearchActive = false }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
-                    contentDescription = "Search"
-                )
-            }
-        }
+         */
+
     } else {
         SmallFloatingActionButton(
-            onClick = { isSearchActive = true },
+            onClick = { isSearchActive.value = true },
             shape = CircleShape,
         ) {
             Icon(

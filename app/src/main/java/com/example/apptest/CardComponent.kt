@@ -168,6 +168,7 @@ fun DetailsComponent(
     val isPortrait = configuration.screenWidthDp < configuration.screenHeightDp
     val columns = if (isPortrait) 2 else 4
 
+    val widthImages = if (isPortrait) screenWidth / 3 else screenWidth / 6
 
 
 
@@ -180,7 +181,7 @@ fun DetailsComponent(
         item (span = { GridItemSpan(columns) }){
             Box (modifier = Modifier
                     .fillMaxWidth()
-                .height(300.dp)) {
+                .height(widthImages * 2.1f)) {
                 Image(
                     painter = backdropPainter,
                     contentDescription = "Backdrop",
@@ -203,7 +204,7 @@ fun DetailsComponent(
                     painter = posterPainter,
                     contentDescription = "Poster",
                     modifier = Modifier
-                        .width(screenWidth / 3)
+                        .width(widthImages)
                         .aspectRatio(1 / 1.66f)
                         .border(2.dp, Color.White)
                         .align(Alignment.BottomCenter),
@@ -281,11 +282,15 @@ fun DetailsComponent(
 }
 
 
-fun customTextBuilder(firstText: String, secondText: String): AnnotatedString =
-    buildAnnotatedString {
+fun customTextBuilder(firstText: String, secondText: String): AnnotatedString {
+    if (secondText.isEmpty()) {
+        return AnnotatedString("undefined")
+    }
+    return buildAnnotatedString {
         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
             append(firstText)
         }
         append(secondText)
     }
+}
 

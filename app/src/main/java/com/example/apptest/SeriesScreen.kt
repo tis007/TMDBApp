@@ -13,17 +13,25 @@ import androidx.window.core.layout.WindowSizeClass
 fun SeriesScreen(
     windowClass: WindowSizeClass,
     mainViewModel: MainViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    searchQuery: String,
 ) {
     LaunchedEffect(Unit) {
-        mainViewModel.getSeries()
-
+        if (searchQuery.isNotEmpty()) {
+            mainViewModel.searchSerie(searchQuery)
+        } else {
+            mainViewModel.getSeries()
+        }
     }
 
     val series by mainViewModel.series.collectAsStateWithLifecycle()
 
-    GridComponent(canBeCardedList = series, ::cardClickActionSeries, navController)
-
+    if (series.isNotEmpty()) {
+        GridComponent(canBeCardedList = series, ::cardClickAction, navController)
+    } else if (searchQuery.isNotEmpty() && series.isEmpty()) {
+        // Affichez un indicateur de chargement ou un message d'erreur
+        Text("Aucun résultat trouvé")
+    }
 }
 
 

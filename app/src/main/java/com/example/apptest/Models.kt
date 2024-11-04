@@ -245,6 +245,7 @@ data class KnownFor(
 
 @SuppressLint("NewApi")
 fun formatDate(input: String): String {
+    if (input.isEmpty()) return ""
     val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
     val outputFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
     val date = LocalDate.parse(input, inputFormatter)
