@@ -11,18 +11,18 @@ data class MovieList(
 )
 
 interface CanBeCarded {
-    fun getLinkToToDetails() : String = ""
-    fun getTitleName() : String;
-    fun getPosterPath() : String;
-    fun getDate() : String;
+    fun getLinkToToDetails(): String = ""
+    fun getTitleName(): String;
+    fun getPosterPath(): String;
+    fun getDate(): String;
 
 }
 
 interface CanBeDetailed : CanBeCarded {
-    fun getGenresNames() : List<String> = listOf()
-    fun getSynopsis() : String = ""
-    fun getCastProfilPath() : List<Cast> = listOf()
-    fun getBackdropPath() : String = ""
+    fun getGenresNames(): List<String> = listOf()
+    fun getSynopsis(): String = ""
+    fun getCastProfilPath(): List<Cast> = listOf()
+    fun getBackdropPath(): String = ""
 }
 
 val baseUrl = "https://api.themoviedb.org/3/"
@@ -216,7 +216,8 @@ data class Actor(
     val popularity: Double = 0.0,
     val profile_path: String = "",
     val biography: String = "",
-    val birthday: String = ""
+    val birthday: String = "",
+    val credits: CreditsActor = CreditsActor()
 ) : CanBeCarded {
     override fun getTitleName() = name
     override fun getPosterPath() = profile_path
@@ -225,6 +226,11 @@ data class Actor(
     fun getBirthDate() = formatDate(birthday ?: "")
 
 }
+
+data class CreditsActor(
+    val cast: List<Movie> = listOf(),
+    val crew: List<Serie> = listOf()
+)
 
 data class KnownFor(
     val adult: Boolean = false,

@@ -195,7 +195,17 @@ fun DetailsComponent(
                 customTextBuilder("Genres: ", genres.joinToString(", ")),
                 customTextBuilder("Synopsis: ", synopsis)
             )
+
+
         }
+        item(span = { GridItemSpan(columns) }) {
+            Text(
+                text = "Acteurs",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
 
 
         items(castList) { castList ->
@@ -224,7 +234,9 @@ fun ActorDetailsComponent(
     val title: String = actor.getTitleName()
     val birthDate: String = actor.getBirthDate() ?: "N/A"
     val biography: String = actor.biography
-    val knownForList: List<KnownFor> = actor.known_for
+    val moviesList = actor.credits.cast.take(10)
+    val seriesList = actor.credits.crew.take(10)
+
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -255,21 +267,53 @@ fun ActorDetailsComponent(
                 customTextBuilder("Date de naissance: ", birthDate),
                 customTextBuilder("Biographie: ", biography),
             )
+
+
         }
 
-        Log.i("ActorDetailsComponent", knownForList.toString())
-        items(knownForList) { knownFor ->
-            Log.i("ActorDetailsComponent", knownFor.toString())
+        item(span = { GridItemSpan(columns) }) {
+            Text(
+                text = "Films",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+
+        items(moviesList) { movie ->
 
             CardComponent(
-                posterPath = knownFor.poster_path,
-                title = knownFor.title,
-                subTitle = knownFor.release_date,
+                posterPath = movie.getPosterPath(),
+                title = movie.getTitleName() ?: "",
+                subTitle = movie.getDate() ?: "",
+                cardClickAction = {
+                    moviesCardClickAction(navController, movie.getLinkToToDetails())
+                }
+            )
+        }
+
+        /*
+        item(span = { GridItemSpan(columns) }) {
+            Text(
+                text = "Series",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Log.i("ActorDetailsComponent", seriesList.toString())
+        items(seriesList) { serie ->
+            CardComponent(
+                posterPath = serie.getPosterPath(),
+                title = serie.getTitleName() ?: "",
+                subTitle = serie.getDate() ?: "",
                 cardClickAction = {
 
                 }
             )
         }
+
+         */
     }
 
 }
@@ -378,12 +422,6 @@ fun TextForDetails(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-
-        Text(
-            text = "Acteurs",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
 
