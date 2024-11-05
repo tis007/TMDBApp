@@ -1,5 +1,6 @@
 package com.example.apptest
 
+import actorCardClickAction
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import kotlin.math.log
@@ -68,18 +70,17 @@ fun CardComponent(
             modifier = Modifier.padding(16.dp)
         ) {
 
-            Log.i("TEST", "posterPath: $posterPath")
-            val painter: Painter
+            val poster: Painter
             if (posterPath != null) {
-                painter =
+                poster =
                     rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$posterPath.jpg")
             } else {
-                painter = painterResource(id = R.drawable.baseline_question_mark_24)
+                poster = painterResource(id = R.drawable.baseline_question_mark_24)
             }
 
 
             Image(
-                painter = painter,
+                painter = poster,
                 contentDescription = "$title poster",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,12 +151,80 @@ fun DetailsComponent(
 
 
     val backdropPath: String = canBeDetailed.getBackdropPath()
-    val posterPath: String = canBeDetailed.getPosterPath()
+    val posterPath: String = canBeDetailed.getPosterPath() ?: ""
     val title: String = canBeDetailed.getTitleName()
     val subTitle: String = canBeDetailed.getDate()
     val genres: List<String> = canBeDetailed.getGenresNames()
     val synopsis: String = canBeDetailed.getSynopsis()
     val castList: List<Cast> = canBeDetailed.getCastProfilPath()
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
+    val backdropPainter =
+        rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$backdropPath.jpg")
+
+    val isPortrait = configuration.screenWidthDp < configuration.screenHeightDp
+    val columns = if (isPortrait) 2 else 4
+
+    val widthImages = if (isPortrait) screenWidth / 3 else screenWidth / 6
+
+
+    val posterPainter: Painter
+    if (posterPath != null) {
+        posterPainter =
+            rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$posterPath.jpg")
+    } else {
+        posterPainter = painterResource(id = R.drawable.baseline_question_mark_24)
+    }
+
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = Modifier.padding(16.dp)
+    ) {
+
+
+        item(span = { GridItemSpan(columns) }) {
+            BackdropAndPoster(backdropPainter, posterPainter, widthImages)
+        }
+
+        item(span = { GridItemSpan(columns) }) {
+            TextForDetails(
+                title, subTitle,
+                customTextBuilder("Genres: ", genres.joinToString(", ")),
+                customTextBuilder("Synopsis: ", synopsis)
+            )
+        }
+
+
+        items(castList) { castList ->
+            CardComponent(
+                posterPath = castList.getPosterPath(),
+                title = castList.getTitleName(),
+                subTitle = castList.getDate(),
+                cardClickAction = {
+                    actorCardClickAction(navController, castList.getLinkToToDetails())
+                }
+            )
+
+        }
+    }
+}
+
+
+@Composable
+fun ActorDetailsComponent(
+    navController: NavHostController,
+    actor: Actor
+) {
+
+    val backdropPath: String = actor.getPosterPath()
+    val posterPath: String = actor.getPosterPath()
+    val title: String = actor.getTitleName()
+    val birthDate: String = actor.getBirthDate() ?: "N/A"
+    val biography: String = actor.biography
+    val knownForList: List<KnownFor> = actor.known_for
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -170,127 +239,151 @@ fun DetailsComponent(
 
     val widthImages = if (isPortrait) screenWidth / 3 else screenWidth / 6
 
-
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = Modifier.padding(16.dp)
     ) {
 
-
-        item (span = { GridItemSpan(columns) }){
-            Box (modifier = Modifier
-                    .fillMaxWidth()
-                .height(widthImages * 2.1f)) {
-                Image(
-                    painter = backdropPainter,
-                    contentDescription = "Backdrop",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer { alpha = 0.99f }
-                        .drawWithContent {
-                            val colors = listOf(
-                                Color.Black, Color.Transparent
-                            )
-                            drawContent()
-                            drawRect(
-                                brush = Brush.verticalGradient(colors), blendMode = BlendMode.DstIn
-                            )
-                        },
-                    contentScale = ContentScale.Crop
-                )
-                // Poster image
-                Image(
-                    painter = posterPainter,
-                    contentDescription = "Poster",
-                    modifier = Modifier
-                        .width(widthImages)
-                        .aspectRatio(1 / 1.66f)
-                        .border(2.dp, Color.White)
-                        .align(Alignment.BottomCenter),
-                    contentScale = ContentScale.Crop
-                )
-            }
+        item(span = { GridItemSpan(columns) }) {
+            BackdropAndPoster(backdropPainter, posterPainter, widthImages)
         }
 
-        item (span = { GridItemSpan(columns) }){
-            Column {
-                Spacer(modifier = Modifier.height(16.dp))
+        item(span = { GridItemSpan(columns) }) {
 
-                // Title
-                Text(
-                    text = title,
-                    fontSize = 30.sp,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-                Text(
-                    text = subTitle,
-                    fontSize = 15.sp,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = customTextBuilder("Genres: ", genres.joinToString(", ")),
-                    fontSize = 18.sp,
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = customTextBuilder("Synopsis: ", synopsis),
-                    fontSize = 19.sp,
-                    textAlign = TextAlign.Justify
-
-                )
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-
-                Text(
-                    text = "Acteurs",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            TextForDetails(
+                title, "",
+                customTextBuilder("Date de naissance: ", birthDate),
+                customTextBuilder("Biographie: ", biography),
+            )
         }
 
+        Log.i("ActorDetailsComponent", knownForList.toString())
+        items(knownForList) { knownFor ->
+            Log.i("ActorDetailsComponent", knownFor.toString())
 
-        items(castList) { castList ->
             CardComponent(
-                posterPath = castList.getPosterPath(),
-                title = castList.getTitleName(),
-                subTitle = castList.getDate(),
+                posterPath = knownFor.poster_path,
+                title = knownFor.title,
+                subTitle = knownFor.release_date,
                 cardClickAction = {
-                    cardClickAction(navController, castList.getLinkToToDetails())
+
                 }
             )
-
         }
     }
-
-
-
 
 }
 
 
 fun customTextBuilder(firstText: String, secondText: String): AnnotatedString {
+    var secondWritenText = secondText
     if (secondText.isEmpty()) {
-        return AnnotatedString("undefined")
+        secondWritenText = "N/A"
     }
     return buildAnnotatedString {
         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
             append(firstText)
         }
-        append(secondText)
+        append(secondWritenText)
+    }
+}
+
+@Composable
+fun BackdropAndPoster(
+    backdropPainter: Painter,
+    posterPainter: Painter,
+    widthImages: Dp
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(widthImages * 2.1f)
+    ) {
+        Image(
+            painter = backdropPainter,
+            contentDescription = "Backdrop",
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { alpha = 0.99f }
+                .drawWithContent {
+                    val colors = listOf(
+                        Color.Black, Color.Transparent
+                    )
+                    drawContent()
+                    drawRect(
+                        brush = Brush.verticalGradient(colors), blendMode = BlendMode.DstIn
+                    )
+                },
+            contentScale = ContentScale.Crop
+        )
+        Image(
+            painter = posterPainter,
+            contentDescription = "Poster",
+            modifier = Modifier
+                .width(widthImages)
+                .aspectRatio(1 / 1.66f)
+                .border(2.dp, Color.White)
+                .align(Alignment.BottomCenter),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
+@Composable
+fun TextForDetails(
+    title: String,
+    subTitle: String,
+    genres: AnnotatedString,
+    desciption: AnnotatedString,
+
+    ) {
+    Column {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Title
+        Text(
+            text = title,
+            fontSize = 30.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+
+        Text(
+            text = subTitle,
+            fontSize = 15.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (genres.isNotEmpty()) {
+            Text(
+                text = genres,
+                fontSize = 18.sp,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = desciption,
+            fontSize = 19.sp,
+            textAlign = TextAlign.Justify
+
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+
+        Text(
+            text = "Acteurs",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 

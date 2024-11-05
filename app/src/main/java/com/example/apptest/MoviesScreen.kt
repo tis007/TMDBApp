@@ -33,7 +33,7 @@ fun MoviesScreen(
     //Log.v("Movies", movies.joinToString { it.credits.cast.toString() })
 
     if (movies.isNotEmpty()) {
-        GridComponent(canBeCardedList = movies, ::cardClickAction, navController)
+        GridComponent(canBeCardedList = movies, ::moviesCardClickAction, navController)
     } else if (searchQuery.isNotEmpty() && movies.isEmpty()) {
         // Affichez un indicateur de chargement ou un message d'erreur
         Text("Aucun résultat trouvé")
@@ -62,7 +62,7 @@ fun MovieDetailsScreen(
     }
 }
 
-fun cardClickAction(navController: NavHostController, detailsId: String) {
+fun moviesCardClickAction(navController: NavHostController, detailsId: String) {
     navController.navigate(MovieDetailsDestination(detailsId))
 
 }

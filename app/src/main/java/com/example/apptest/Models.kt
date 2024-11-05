@@ -221,7 +221,8 @@ data class Actor(
     override fun getTitleName() = name
     override fun getPosterPath() = profile_path
     override fun getDate() = ""
-    override fun getLinkToToDetails() = baseUrl + "actor/" + id + apiKey
+    override fun getLinkToToDetails() = id.toString()
+    fun getBirthDate() = formatDate(birthday ?: "")
 
 }
 

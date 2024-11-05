@@ -1,5 +1,6 @@
 package com.example.apptest
 
+import ActorDetailsScreen
 import ActorsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -48,7 +49,7 @@ data class SerieDetailsDestionation(val detailsId: String)
 class ActorsDestination
 
 @Serializable
-class ActorDetailsDestination
+data class ActorDetailsDestination(val detailsId: String)
 
 
 class MainActivity : ComponentActivity() {
@@ -171,9 +172,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable<SerieDetailsDestionation> { backStackEntry ->
-                            val SerieDetail: MovieDetailsDestination = backStackEntry.toRoute()
+                            val serieDetail: SerieDetailsDestionation = backStackEntry.toRoute()
                             SerieDetailsScreen(
-                                windowSizeClass, mainViewModel, navController, SerieDetail.detailsId
+                                windowSizeClass, mainViewModel, navController, serieDetail.detailsId
                             )
                         }
 
@@ -182,7 +183,12 @@ class MainActivity : ComponentActivity() {
                                 windowSizeClass, mainViewModel, navController, searchQuery.value
                             )
                         }
-                        composable<ActorDetailsDestination> { }
+                        composable<ActorDetailsDestination> { backStackEntry ->
+                            val actorDetail: ActorDetailsDestination = backStackEntry.toRoute()
+                            ActorDetailsScreen(
+                                windowSizeClass, mainViewModel, navController, actorDetail.detailsId
+                            )
+                        }
                     }
                 }
             }

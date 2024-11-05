@@ -27,7 +27,7 @@ fun SeriesScreen(
     val series by mainViewModel.series.collectAsStateWithLifecycle()
 
     if (series.isNotEmpty()) {
-        GridComponent(canBeCardedList = series, ::cardClickAction, navController)
+        GridComponent(canBeCardedList = series, ::seriescardClickAction, navController)
     } else if (searchQuery.isNotEmpty() && series.isEmpty()) {
         // Affichez un indicateur de chargement ou un message d'erreur
         Text("Aucun résultat trouvé")
@@ -57,7 +57,7 @@ fun SerieDetailsScreen(
     }
 }
 
-fun cardClickActionSeries(navController: NavHostController, detailsId: String) {
+fun seriescardClickAction(navController: NavHostController, detailsId: String) {
     navController.navigate(SerieDetailsDestionation(detailsId))
 
 }
