@@ -1,5 +1,6 @@
 package com.example.apptest
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -65,20 +68,30 @@ fun HorrorScreen(
                     modifier = Modifier
                         .padding(padding)
                         .fillMaxWidth()
-                        .fillMaxHeight(),
+                        .wrapContentHeight()
 
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
 
+                        val posterPath = horrorMovie.poster_path
+                        val poster = rememberAsyncImagePainter(model = "https://image.tmdb.org/t/p/w780$posterPath.jpg")
+
+                        if (posterPath != null) {
+                            Image(
+                                painter = poster,
+                                contentDescription = "poster",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
 
                         Text(
                             text = horrorMovie.name,
                             fontSize = 20.sp,
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            textAlign = TextAlign.Center,
-
                         )
 
                     }
