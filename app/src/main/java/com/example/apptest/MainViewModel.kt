@@ -30,6 +30,14 @@ class MainViewModel : ViewModel() {
 
     val actor = MutableStateFlow(Actor())
 
+    val horrorMovies = MutableStateFlow<List<FilmCollection>>(listOf())
+
+    fun getHorrorMovies() {
+        viewModelScope.launch {
+            horrorMovies.value = api.getHorrorCollection(apiKey, "horror", "fr").results
+        }
+    }
+
     fun getMovies() {
         viewModelScope.launch {
             movies.value = api.getMovieList(apiKey, "fr").results
