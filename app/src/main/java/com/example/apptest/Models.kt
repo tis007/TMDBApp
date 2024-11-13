@@ -45,7 +45,16 @@ data class FilmCollection(
     val original_name: String,
     val overview: String,
     val poster_path: String
-)
+) : CanBeDetailed {
+    override fun getTitleName() = name
+    override fun getPosterPath() = poster_path
+    override fun getDate() = ""
+    override fun getLinkToToDetails() = id.toString()
+    override fun getGenresNames(): List<String> = listOf()
+    override fun getSynopsis() = overview
+    override fun getCastProfilPath(): List<Cast> = listOf()
+    override fun getBackdropPath() = backdrop_path
+}
 //MOVIE
 data class Movie(
     val adult: Boolean = false,
