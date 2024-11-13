@@ -51,6 +51,8 @@ class ActorsDestination
 @Serializable
 data class ActorDetailsDestination(val detailsId: String)
 
+@Serializable
+class HorrorDestination
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,6 +127,19 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(ActorsDestination())
                                     searchQuery.value = ""
                                 })
+
+                            NavigationBarItem(icon = {
+                                Icon(
+                                    painterResource(id = R.drawable.baseline_self_improvement_24),
+                                    contentDescription = null
+                                )
+                            },
+                                label = { Text("Horror") },
+                                selected = currentDestination.hasRoute<HorrorDestination>(),
+                                onClick = {
+                                    navController.navigate(HorrorDestination())
+                                    searchQuery.value = ""
+                                })
                         }
                     }
                 }
@@ -187,6 +202,11 @@ class MainActivity : ComponentActivity() {
                             val actorDetail: ActorDetailsDestination = backStackEntry.toRoute()
                             ActorDetailsScreen(
                                 windowSizeClass, mainViewModel, navController, actorDetail.detailsId
+                            )
+                        }
+                        composable<HorrorDestination> {
+                            HorrorScreen(
+                                windowSizeClass, mainViewModel, navController
                             )
                         }
                     }
