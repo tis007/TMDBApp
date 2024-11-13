@@ -28,6 +28,24 @@ interface CanBeDetailed : CanBeCarded {
 val baseUrl = "https://api.themoviedb.org/3/"
 val apiKey = "?api_key=b57151d36fecd1b693da830a2bc5766f"
 
+
+data class FilmCollections(
+    val page: Int,
+    val results: List<FilmCollection>,
+    val total_pages: Int,
+    val total_results: Int
+)
+
+data class FilmCollection(
+    val adult: Boolean,
+    val backdrop_path: String,
+    val id: Int,
+    val name: String,
+    val original_language: String,
+    val original_name: String,
+    val overview: String,
+    val poster_path: String
+)
 //MOVIE
 data class Movie(
     val adult: Boolean = false,
